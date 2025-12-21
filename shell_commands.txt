@@ -1,0 +1,100 @@
+# 0) Начало работы
+
+- python manage.py shell
+
+from django.contrib.auth import get_user_model
+from news.models import Author, Category, Post, Comment
+
+User = get_user_model()
+
+
+# 2) Создаю 2 пользователя
+u1 = User.objects.create_user(username="dance_editor", password="pass12345")
+u2 = User.objects.create_user(username="dance_reporter", password="pass12345")
+
+
+# 3) Создаю 2 Автора
+a1 = Author.objects.create(user=u1)
+a2 = Author.objects.create(user=u2)
+
+
+# 4) Добавляю 4 категории
+c1 = Category.objects.create(category_name="Балет")
+c2 = Category.objects.create(category_name="Контемпорари")
+c3 = Category.objects.create(category_name="Хип-хоп")
+c4 = Category.objects.create(category_name="Фестивали и события")
+
+
+# 5) Создаю 2 статьи и 1 новость
+p1 = Post.objects.create(
+    author=a1,
+    post_type="BP",
+    title="Контемпорари: как начать и не перегореть",
+    content="Контемпорари — это про осознанное движение, дыхание и качество. Начни с простых задач: вес тела, опора, мягкие переходы и работа с центром. Ставь цель не «выучить связку», а понять принцип. Регулярность важнее героизма: лучше 30 минут, но стабильно."
+)
+p2 = Post.objects.create(
+    author=a2,
+    post_type="BP",
+    title="Балетная база для взрослых: мифы и реальность",
+    content="Балет — это не только про шпагат и пуанты, а прежде всего про осанку, координацию и контроль. Взрослым важно укреплять стопу и корпус, учиться держать баланс и работать через правильные позиции. Прогресс приходит постепенно: техника и здоровье всегда важнее скорости."
+)
+p3 = Post.objects.create(
+    author=a1,
+    post_type="NL",
+    title="Открытый урок по танцам в эту субботу",
+    content="В эту субботу состоится открытый урок: разминка, короткая связка и мини-импровизация. Приходите в удобной форме, берите воду и хорошее настроение!"
+)
+
+
+# 6) Присвоение категорий
+p1.post_categories.add(c2, c4)
+p2.post_categories.add(c1)
+p3.post_categories.add(c3, c4)
+
+
+# 7) Создание комментариев
+com1 = Comment.objects.create(post=p1, user=u1, comment_text="Классная статья! Особенно про то, что не надо гнаться за сложными связками.")
+com2 = Comment.objects.create(post=p2, user=u2, comment_text="Согласна: техника важнее ‘быстрого результата’. Отличная структура!")
+com3 = Comment.objects.create(post=p3, user=u1, comment_text="О, супер! А будет ли запись или это только офлайн?")
+com4 = Comment.objects.create(post=p1, user=u2, comment_text="Хочу больше примеров упражнений на опору🙌")
+
+
+# 8) Лайки/дизлайки для постов и комментариев
+p1.like()
+p1.like()
+p2.dislike()
+p2.dislike()
+p3.like()
+p3.dislike()
+
+com1.like()
+com2.like()
+com2.dislike()
+com3.like()
+com4.dislike()
+
+
+# 9) Обновление рейтинга Авторов
+a1.update_rating()
+a2.update_rating()
+
+
+# 10) Вывод username и рейтинга лучшего пользователя
+best_author = Author.objects.order_by("-author_rating").select_related("user").first()
+best_author.user.username
+best_author.author_rating
+
+
+# 11) Вывод даты, username автора, рейтинга, заголовка и превью лучшей статьи (только статьи BP)
+best_post = Post.objects.filter(post_type="BP").order_by("-post_rating").select_related("author__user").first()
+best_post.post_date
+best_post.author.user.username
+best_post.post_rating
+best_post.title
+best_post.preview()
+
+
+# 12) Вывод всех комментариев к лучшей статье
+comments = Comment.objects.filter(post=best_post).select_related("user").order_by("comment_date")
+for c in comments:
+    c.comment_date, c.user.username, c.comment_rating, c.comment_text
