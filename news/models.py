@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.apps import apps
+from django.urls import reverse
 
 
 class Category(models.Model):
@@ -12,6 +13,10 @@ class Category(models.Model):
 class Author(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     author_rating = models.IntegerField(default=0)
+
+    def __str__(self):
+        full_name = f"{self.user.first_name} {self.user.last_name}".strip()
+        return full_name if full_name else self.user.username
 
     def update_rating(self):
         Post = apps.get_model('news', 'Post')
@@ -75,10 +80,16 @@ class Post(models.Model):
         else:
             return self.content[:124] + '...'
 
+    def get_absolute_url(self):
+         return reverse('post_detail', args=[str(self.id)])
+
 
 class PostCategory(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.post.title} → {self.category.category_name}"
 
 class Comment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
