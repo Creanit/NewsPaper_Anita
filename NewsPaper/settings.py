@@ -40,13 +40,14 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.sites',
     'django.contrib.flatpages',
-    'news',
+    'news.apps.NewsConfig',
     'django_filters',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
     'allauth.socialaccount.providers.yandex',
+    'django_apscheduler',
 ]
 
 SITE_ID = 1
@@ -96,8 +97,11 @@ ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
-ACCOUNT_EMAIL_VERIFICATION = 'none'
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
 ACCOUNT_FORMS = {'signup': 'news.forms.CommonSignupForm'}
+ACCOUNT_CONFIRM_EMAIL_ON_GET = True
+DEFAULT_FROM_EMAIL = 'test@example.com'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
@@ -153,3 +157,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 STATICFILES_DIRS = [
     BASE_DIR / "static"
 ]
+
+APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a"
+APSCHEDULER_RUN_NOW_TIMEOUT = 25

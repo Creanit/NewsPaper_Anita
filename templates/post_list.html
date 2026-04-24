@@ -22,7 +22,25 @@ Posts
         {% for post in posts %}
         <ul align="left">
             <li>
-                <h5> {{ post.title|censor }}</h5> <i>({{ post.post_date|date:'d.m.Y' }})</i> </br>- {{ post.content|truncatechars:20 }}
+                <h5>{{ post.title }}</h5>
+                <i>({{ post.post_date|date:'d.m.Y' }})</i>
+                </br>
+                - {{ post.content|truncatechars:20 }}
+
+                <p>
+                    Категории:
+                    {% for category in post.post_categories.all %}
+                    {{ category.category_name }}
+
+                    {% if request.user.is_authenticated %}
+                        <a href="{% url 'subscribe_to_category' category.id %}">
+                            Подписаться
+                        </a>
+                    {% endif %}
+
+                    {% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                </p>
             </li>
         </ul>
         {% endfor %}
