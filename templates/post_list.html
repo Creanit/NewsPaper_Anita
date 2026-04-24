@@ -12,19 +12,24 @@ Posts
     <h1>Все статьи</h1>
     <h5>{{ time_now|date:'M d Y' }}</h5>
     <h4> {{ next_post|default_if_none:"Чуть позже сообщим о времени выхода новых статей!" }} </h4>
-<hr>
+    <hr>
+
+    {% if request.user.is_authenticated and is_not_author %}
+        <p><a href="/upgrade/">Стать автором</a></p>
+    {% endif %}
+
     {% if posts %}
         {% for post in posts %}
-        <ul align = "left">
+        <ul align="left">
             <li>
                 <h5> {{ post.title|censor }}</h5> <i>({{ post.post_date|date:'d.m.Y' }})</i> </br>- {{ post.content|truncatechars:20 }}
             </li>
-
         </ul>
         {% endfor %}
     {% else %}
        <h2>Статей не найдено!</h2>
     {% endif %}
+
     {% if page_obj.has_previous %}
        <a href="?{% url_replace page=1 %}">1</a>
        {% if page_obj.previous_page_number != 1 %}
