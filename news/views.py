@@ -11,6 +11,8 @@ from .models import Post, Category
 from .filters import PostFilter
 from .forms import PostForm
 
+from .tasks import send_new_post_notifications
+
 
 class PostList(ListView):
     model = Post
@@ -88,6 +90,10 @@ class PostCreate(PermissionRequiredMixin, CreateView):
         form.save_m2m()
 
         self.object = post
+
+        if post.post_type == 'NL':
+            send_new_post_notifications.delay(post.pk)
+
         return redirect(post.get_absolute_url())
 
 
